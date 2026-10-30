@@ -6,6 +6,16 @@
 App link (open it on your phone or computer, signed in to claude.ai):
 https://claude.ai/artifact/NtZxEK2tsqgzed5Cf5fuRD
 
+## Install it on your phone (with its own icon)
+1. On your phone, open **https://caregreat-lang.github.io/builder-claude/**
+2. **iPhone:** in Safari, tap Share, then **Add to Home Screen**, then Add.
+   **Android:** in Chrome, tap ⋮, then **Install app** (or **Add to Home screen**).
+3. The pink chat-bubble **Builder Claude** icon appears on your home screen. It opens full screen like a normal app and works offline once opened.
+
+Your candidate list is saved on the phone only, never on GitHub.
+
+To update the app after changing `index.html` on your PC, run `node build.js`, then commit and push. The phone picks up the new version the next time you open the app while online.
+
 ## Running it on your PC
 1. Double-click **Builder Claude** on your Desktop. A black window opens and the app opens in your browser at http://localhost:8787.
 2. Keep the black window open while you use the app. Close it to stop.
