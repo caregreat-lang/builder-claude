@@ -146,7 +146,7 @@ function initLocal(){
   LOCAL=true;
   try{const d=JSON.parse(localStorage.getItem(LOCAL_KEY)||"null");
     if(d){S.settings={...DEFAULT_SETTINGS,...d.settings};S.candidates=d.candidates||[];S.posts=d.posts||[]}
-    setSync("saved on this PC")}catch(e){setSync("browser storage blocked · not saving")}
+    setSync("saved on this device")}catch(e){setSync("browser storage blocked · not saving")}
   render();
 }
 function persistLocal(){
