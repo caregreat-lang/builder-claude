@@ -15,7 +15,7 @@ Tap **中文** at the top right to switch all buttons and menus to Chinese. Tap 
 1. On your phone, open **https://caregreat-lang.github.io/builder-claude/**
 2. **iPhone:** in Safari, tap Share, then **Add to Home Screen**, then Add.
    **Android:** in Chrome, tap ⋮, then **Install app** (or **Add to Home screen**).
-3. The pink chat-bubble **W2G Builder Claude** icon appears on your home screen. It opens full screen like a normal app and works offline once opened.
+3. The **W2G Builder Claude** icon (a white arrow in a pink circle, W2G underneath) appears on your home screen. It opens full screen like a normal app and works offline once opened.
 
 Your candidate list is saved on the phone only, never on GitHub.
 

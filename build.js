@@ -9,7 +9,8 @@ fs.mkdirSync(docs, { recursive: true });
 if (!fs.existsSync(path.join(docs, "icons", "icon-512.png"))) require("./gen-icons.js");
 
 const app = fs.readFileSync(path.join(root, "index.html"), "utf8");
-const version = crypto.createHash("sha1").update(app).digest("hex").slice(0, 10);
+// Icons are drawn by gen-icons.js, so its source is part of the version too.
+const version = crypto.createHash("sha1").update(app).update(fs.readFileSync(path.join(root, "gen-icons.js"))).digest("hex").slice(0, 10);
 
 const head = [
   '<meta charset="utf-8">',
