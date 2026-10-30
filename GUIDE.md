@@ -1,4 +1,4 @@
-# Builder Claude: how to use it
+# W2G Builder Claude: how to use it
 
 **What it fixes:** your hiring posts weren't reaching young, energetic candidates, and replying to every DM took too much time.
 **What it does:** each week it writes a fun hiring post in English, Malay and Chinese (中文), reminds you 3 days before posting day, drafts replies to candidate DMs, and keeps a candidate list you can download as a PDF.
@@ -15,14 +15,14 @@ Tap **中文** at the top right to switch all buttons and menus to Chinese. Tap 
 1. On your phone, open **https://caregreat-lang.github.io/builder-claude/**
 2. **iPhone:** in Safari, tap Share, then **Add to Home Screen**, then Add.
    **Android:** in Chrome, tap ⋮, then **Install app** (or **Add to Home screen**).
-3. The pink chat-bubble **Builder Claude** icon appears on your home screen. It opens full screen like a normal app and works offline once opened.
+3. The pink chat-bubble **W2G Builder Claude** icon appears on your home screen. It opens full screen like a normal app and works offline once opened.
 
 Your candidate list is saved on the phone only, never on GitHub.
 
 To update the app after changing `index.html` on your PC, run `node build.js`, then commit and push. The phone picks up the new version the next time you open the app while online.
 
 ## Running it on your PC
-1. Double-click **Builder Claude** on your Desktop. A black window opens and the app opens in your browser at http://localhost:8787.
+1. Double-click **W2G Builder Claude** on your Desktop. A black window opens and the app opens in your browser at http://localhost:8787.
 2. Keep the black window open while you use the app. Close it to stop.
 3. To use it from your phone, start **Start Builder Claude (phone access).bat** in the `builder-claude` folder instead. The black window shows an address like `http://192.168.x.x:8787` to open on your phone (same Wi-Fi). If Windows asks about network access, allow **Private networks** only.
 

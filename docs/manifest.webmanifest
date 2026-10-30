@@ -1,6 +1,6 @@
 {
-  "name": "Builder Claude",
-  "short_name": "Builder Claude",
+  "name": "W2G Builder Claude",
+  "short_name": "W2G Builder Claude",
   "description": "Weekly English + Malay hiring posts, DM reply drafts and a candidate PDF list.",
   "start_url": "./",
   "scope": "./",

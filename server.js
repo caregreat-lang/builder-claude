@@ -1,4 +1,4 @@
-// Builder Claude local server. Builds the app, then serves docs/ at http://localhost:8787
+// W2G Builder Claude local server. Builds the app, then serves docs/ at http://localhost:8787
 // Run with --lan to also allow phones on the same Wi-Fi to open it.
 const http = require("http");
 const fs = require("fs");
@@ -24,7 +24,7 @@ http.createServer((req, res) => {
   res.writeHead(200, { "Content-Type": TYPES[path.extname(file)] || "application/octet-stream", "Cache-Control": "no-cache" });
   fs.createReadStream(file).pipe(res);
 }).listen(PORT, HOST, () => {
-  console.log("Builder Claude is running.");
+  console.log("W2G Builder Claude is running.");
   console.log("  On this PC:   http://localhost:" + PORT);
   if (LAN) {
     for (const nets of Object.values(os.networkInterfaces()))
@@ -32,6 +32,6 @@ http.createServer((req, res) => {
   }
   console.log("Keep this window open while you use the app. Close it to stop.");
 }).on("error", e => {
-  console.error(e.code === "EADDRINUSE" ? "Port " + PORT + " is already in use. Builder Claude may already be running: open http://localhost:" + PORT : e.message);
+  console.error(e.code === "EADDRINUSE" ? "Port " + PORT + " is already in use. W2G Builder Claude may already be running: open http://localhost:" + PORT : e.message);
   process.exitCode = 1;
 });

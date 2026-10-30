@@ -1,4 +1,4 @@
-# Builder Claude
+# W2G Builder Claude
 
 A phone app that helps a consulting team attract young, energetic candidates. It writes a weekly hiring post in English and Malay, reminds you 3 days before posting day, drafts replies to candidate DMs for your approval, and exports a candidate list as a PDF.
 

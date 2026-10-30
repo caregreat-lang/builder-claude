@@ -18,7 +18,7 @@ const head = [
   '<meta name="description" content="Weekly English + Malay hiring posts, DM reply drafts and a candidate PDF list.">',
   '<meta name="apple-mobile-web-app-capable" content="yes">',
   '<meta name="mobile-web-app-capable" content="yes">',
-  '<meta name="apple-mobile-web-app-title" content="Builder Claude">',
+  '<meta name="apple-mobile-web-app-title" content="W2G Builder Claude">',
   '<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">',
   '<link rel="manifest" href="manifest.webmanifest">',
   '<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">',
@@ -30,8 +30,8 @@ const sw = `<script>if("serviceWorker" in navigator)addEventListener("load",()=>
 fs.writeFileSync(path.join(docs, "index.html"), `<!doctype html><html lang="en"><head>${head}</head><body>${app}${sw}</body></html>`);
 
 fs.writeFileSync(path.join(docs, "manifest.webmanifest"), JSON.stringify({
-  name: "Builder Claude",
-  short_name: "Builder Claude",
+  name: "W2G Builder Claude",
+  short_name: "W2G Builder Claude",
   description: "Weekly English + Malay hiring posts, DM reply drafts and a candidate PDF list.",
   start_url: "./",
   scope: "./",

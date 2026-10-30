@@ -1,4 +1,4 @@
-<title>Builder Claude</title>
+<title>W2G Builder Claude</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
@@ -91,7 +91,7 @@ button:disabled{opacity:.5;cursor:default}
 </style>
 
 <header class="top"><div class="top-in">
-  <div><div class="logo">Builder <b>Claude</b></div><div class="tag" data-i18n="Weekly posts that bring young talent to your DMs">Weekly posts that bring young talent to your DMs</div></div>
+  <div><div class="logo">W2G Builder <b>Claude</b></div><div class="tag" data-i18n="Weekly posts that bring young talent to your DMs">Weekly posts that bring young talent to your DMs</div></div>
   <div class="top-right"><button class="lang" id="lang-btn" type="button">中文</button><div class="sync" id="sync">connecting…</div></div>
 </div></header>
 
@@ -139,8 +139,8 @@ const ZH={
   "Create it now in English, Malay and Chinese so it's approved before posting day.":"现在就写好英文、马来文和中文版本，在发帖日前完成批准。",
   "Create this week's post":"写本周帖子","Next post":"下一篇帖子",
   "You'll get a reminder here from {d} (3 days before).":"从 {d}（提前 3 天）开始，这里会提醒你。","Start early":"提前开始",
-  "Install the app":"安装应用","Put the Builder Claude icon on your home screen. Opens full screen and works offline.":"把 Builder Claude 图标放到主屏幕。全屏打开，离线也能用。",
-  "Install app":"安装应用","Builder Claude installed":"Builder Claude 已安装","Install cancelled":"已取消安装","Install Builder Claude":"安装 Builder Claude","Got it":"知道了",
+  "Install the app":"安装应用","Put the W2G Builder Claude icon on your home screen. Opens full screen and works offline.":"把 W2G Builder Claude 图标放到主屏幕。全屏打开，离线也能用。",
+  "Install app":"安装应用","W2G Builder Claude installed":"W2G Builder Claude 已安装","Install cancelled":"已取消安装","Install W2G Builder Claude":"安装 W2G Builder Claude","Got it":"知道了",
   "Candidates waiting":"待处理应聘者","{n} with details missing":"{n} 位资料不完整","All details complete":"资料全部完整","View candidates":"查看应聘者",
   "Posts created":"已写帖子","{n} posted so far":"已发布 {n} 篇","Post history":"帖子记录",
   "Phone reminder":"手机提醒",
@@ -268,9 +268,9 @@ function calendarLink(){
   const due=nextPostDate();const rem=new Date(due);rem.setDate(due.getDate()-3);
   const dd=ymd(rem).replace(/-/g,"");const end=new Date(rem);end.setDate(rem.getDate()+1);
   const byday=["SU","MO","TU","WE","TH","FR","SA"][rem.getDay()];
-  const p=new URLSearchParams({action:"TEMPLATE",text:"Builder Claude: prepare this week's hiring post (due "+DAYS[due.getDay()]+")",
+  const p=new URLSearchParams({action:"TEMPLATE",text:"W2G Builder Claude: prepare this week's hiring post (due "+DAYS[due.getDay()]+")",
     dates:dd+"/"+ymd(end).replace(/-/g,""),recur:"RRULE:FREQ=WEEKLY;BYDAY="+byday,
-    details:"Open Builder Claude, create the post in English, Malay and Chinese, approve it, then post on RedNote and Instagram on "+DAYS[due.getDay()]+"."});
+    details:"Open W2G Builder Claude, create the post in English, Malay and Chinese, approve it, then post on RedNote and Instagram on "+DAYS[due.getDay()]+"."});
   return "https://calendar.google.com/calendar/render?"+p.toString();
 }
 
@@ -424,12 +424,12 @@ function viewWeek(){
 /* ---------- install as a phone/PC app (only on the GitHub / PC version) ---------- */
 let INSTALL_PROMPT=null;
 addEventListener("beforeinstallprompt",e=>{e.preventDefault();INSTALL_PROMPT=e;render()});
-addEventListener("appinstalled",()=>{INSTALL_PROMPT=null;toast(t("Builder Claude installed"));render()});
+addEventListener("appinstalled",()=>{INSTALL_PROMPT=null;toast(t("W2G Builder Claude installed"));render()});
 const isInstalled=()=>matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
 const isIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
 function installCard(){
   if(!LOCAL||isInstalled())return "";
-  return `<div class="card"><div class="row" style="justify-content:space-between"><div style="min-width:0"><h2>${t("Install the app")}</h2><p class="small muted">${t("Put the Builder Claude icon on your home screen. Opens full screen and works offline.")}</p></div>
+  return `<div class="card"><div class="row" style="justify-content:space-between"><div style="min-width:0"><h2>${t("Install the app")}</h2><p class="small muted">${t("Put the W2G Builder Claude icon on your home screen. Opens full screen and works offline.")}</p></div>
     <button class="primary" id="w-install">${t("Install app")}</button></div></div>`;
 }
 async function installApp(){
@@ -439,7 +439,7 @@ async function installApp(){
         zh:"<ol><li>用 <b>Safari</b> 打开此页面。</li><li>点击<b>分享</b>按钮（带箭头的方框）。</li><li>点击<b>添加到主屏幕</b>，然后点<b>添加</b>。</li></ol>"})
     :L({en:"<ol><li>Open this page in <b>Chrome</b>.</li><li>Tap <b>⋮</b> (top right).</li><li>Tap <b>Install app</b> or <b>Add to Home screen</b>.</li></ol><p>On a PC, click the install icon at the right end of the address bar.</p>",
         zh:"<ol><li>用 <b>Chrome</b> 打开此页面。</li><li>点击右上角的 <b>⋮</b>。</li><li>点击<b>安装应用</b>或<b>添加到主屏幕</b>。</li></ol><p>在电脑上，点击地址栏右侧的安装图标。</p>"});
-  confirmSheet(t("Install Builder Claude"),steps,t("Got it"));
+  confirmSheet(t("Install W2G Builder Claude"),steps,t("Got it"));
 }
 function viewPost(){
   const due=nextPostDate();const d=S.draftPost;
@@ -464,8 +464,8 @@ function viewPost(){
       <button id="p-copy-en">${t("Copy English")}</button><button id="p-copy-ms">${t("Copy Malay")}</button><button id="p-copy-zh">${t("Copy Chinese")}</button>
       ${d.status==="approved"?`<button id="p-posted">${t("Mark as posted")}</button>`:""}
     </div>
-    <p class="small muted">${L({en:'Builder Claude never posts for you. Copy the caption, open <a href="https://www.xiaohongshu.com" target="_blank" rel="noopener">RedNote</a> or <a href="https://www.instagram.com" target="_blank" rel="noopener">Instagram</a>, paste and publish.',
-      zh:'Builder Claude 不会替你发帖。复制文案，打开<a href="https://www.xiaohongshu.com" target="_blank" rel="noopener">小红书</a>或 <a href="https://www.instagram.com" target="_blank" rel="noopener">Instagram</a>，粘贴并发布。'})}</p>
+    <p class="small muted">${L({en:'W2G Builder Claude never posts for you. Copy the caption, open <a href="https://www.xiaohongshu.com" target="_blank" rel="noopener">RedNote</a> or <a href="https://www.instagram.com" target="_blank" rel="noopener">Instagram</a>, paste and publish.',
+      zh:'W2G Builder Claude 不会替你发帖。复制文案，打开<a href="https://www.xiaohongshu.com" target="_blank" rel="noopener">小红书</a>或 <a href="https://www.instagram.com" target="_blank" rel="noopener">Instagram</a>，粘贴并发布。'})}</p>
   </div>`:""}
   <h2>${t("History")}</h2>
   ${hist?`<div class="list">${hist}</div>`:`<div class="empty">${t("Your approved posts appear here, one per week.")}</div>`}`;
@@ -625,7 +625,7 @@ async function downloadPdf(filter){
   const list=S.candidates.filter(c=>filter==="shortlisted"?c.status==="shortlisted":filter==="active"?c.status!=="not a fit":true);
   if(!list.length){toast(t("No candidates match that filter"));return}
   if(!window.jspdf){toast(t("PDF tool didn't load. Check your connection and reload"));return}
-  const sub=`${S.settings.company||"Builder Claude"}  ·  Generated ${new Date().toLocaleDateString("en-MY",{day:"numeric",month:"long",year:"numeric"})}  ·  ${list.length} candidate${list.length>1?"s":""}  ·  Confidential: recruitment use only`;
+  const sub=`${S.settings.company||"W2G Builder Claude"}  ·  Generated ${new Date().toLocaleDateString("en-MY",{day:"numeric",month:"long",year:"numeric"})}  ·  ${list.length} candidate${list.length>1?"s":""}  ·  Confidential: recruitment use only`;
   const NA="Not provided - ask candidate";
   let doc;
   if(HAS_CJK.test(sub+JSON.stringify(list.map(c=>[c.name,c.education,c.experience,c.handle])))){

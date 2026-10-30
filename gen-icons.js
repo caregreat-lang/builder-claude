@@ -1,4 +1,4 @@
-// Draws the Builder Claude app icon (pink chat bubble + spark on navy) and writes PNGs. No dependencies.
+// Draws the W2G Builder Claude app icon (pink chat bubble + spark on navy) and writes PNGs. No dependencies.
 const fs = require("fs");
 const path = require("path");
 const zlib = require("zlib");
