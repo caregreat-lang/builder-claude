@@ -66,4 +66,14 @@ const out = path.join(__dirname, "docs", "icons");
 fs.mkdirSync(out, { recursive: true });
 for (const [name, size] of [["icon-512.png", 512], ["icon-192.png", 192], ["apple-touch-icon.png", 180], ["favicon-32.png", 32]])
   fs.writeFileSync(path.join(out, name), png(size));
-console.log("Icons written to docs/icons");
+// Windows icon for the desktop shortcut (an .ico can hold PNG images directly).
+const imgs = [256, 48, 32].map(s => png(s)), head = Buffer.alloc(6 + 16 * imgs.length);
+head.writeUInt16LE(1, 2); head.writeUInt16LE(imgs.length, 4);
+let off = head.length;
+imgs.forEach((img, i) => {
+  const e = 6 + 16 * i, s = [256, 48, 32][i] % 256;
+  head[e] = s; head[e + 1] = s; head.writeUInt16LE(1, e + 4); head.writeUInt16LE(32, e + 6);
+  head.writeUInt32LE(img.length, e + 8); head.writeUInt32LE(off, e + 12); off += img.length;
+});
+fs.writeFileSync(path.join(__dirname, "app.ico"), Buffer.concat([head, ...imgs]));
+console.log("Icons written to docs/icons and app.ico");

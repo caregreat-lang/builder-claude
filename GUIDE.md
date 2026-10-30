@@ -22,8 +22,8 @@ Your candidate list is saved on the phone only, never on GitHub.
 To update the app after changing `index.html` on your PC, run `node build.js`, then commit and push. The phone picks up the new version the next time you open the app while online.
 
 ## Running it on your PC
-1. Double-click **W2G Builder Claude** on your Desktop. A black window opens and the app opens in your browser at http://localhost:8787.
-2. Keep the black window open while you use the app. Close it to stop.
+1. Double-click **W2G Builder Claude** (the pink arrow icon) on your Desktop. The app opens in its own window, like a normal program. It uses Chrome, so your saved list stays in Chrome.
+2. A small black window also starts, minimised on the taskbar. It runs the app, so leave it open while you work. Close it when you're done. If you close only the app window, double-click the Desktop icon again to reopen it.
 3. To use it from your phone, start **Start Builder Claude (phone access).bat** in the `builder-claude` folder instead. The black window shows an address like `http://192.168.x.x:8787` to open on your phone (same Wi-Fi). If Windows asks about network access, allow **Private networks** only.
 
 How the PC version differs from the claude.ai link:

@@ -1,6 +1,5 @@
 @echo off
 title W2G Builder Claude
 cd /d "%~dp0"
-start "" http://localhost:8787
-node server.js
+node server.js --open
 pause
