@@ -300,6 +300,7 @@ function viewWeek(){
   else if(inWindow)banner=`<div class="banner"><div class="eyebrow">Reminder · ${daysLeft} day${daysLeft===1?"":"s"} to go</div><div class="big">Your hiring post is due ${fmtDate(due)}</div><p class="small">Create it now in English and Malay so it's approved before posting day.</p><div class="row"><button data-go="post">Create this week's post</button></div></div>`;
   else banner=`<div class="banner calm"><div class="eyebrow">Next post</div><div class="big">${fmtDate(due)}, ${esc(S.settings.postTime)}</div><p class="small">You'll get a reminder here from ${fmtDate(remind)} (3 days before).</p><div class="row"><button data-go="post">Start early</button></div></div>`;
   return `${banner}
+  ${installCard()}
   <div class="grid2">
     <div class="card"><div class="eyebrow muted">Candidates waiting</div><h1>${newC}</h1><p class="small muted">${missing?missing+" with details missing":"All details complete"}</p><button data-go="cand">View candidates</button></div>
     <div class="card"><div class="eyebrow muted">Posts created</div><h1>${S.posts.length}</h1><p class="small muted">${S.posts.filter(x=>x.status==="posted").length} posted so far</p><button data-go="post">Post history</button></div>
@@ -323,6 +324,24 @@ function viewWeek(){
     </div>
     <div class="row"><button class="primary" id="s-save">Save settings</button><span class="small muted">${DB?"Saved to your account, synced to your phone.":LOCAL?"Saved in this browser on this device.":"Sign in to claude.ai to save."}</span></div>
   </div>`;
+}
+/* ---------- install as a phone/PC app (only on the GitHub / PC version) ---------- */
+let INSTALL_PROMPT=null;
+addEventListener("beforeinstallprompt",e=>{e.preventDefault();INSTALL_PROMPT=e;render()});
+addEventListener("appinstalled",()=>{INSTALL_PROMPT=null;toast("Builder Claude installed");render()});
+const isInstalled=()=>matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
+const isIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+function installCard(){
+  if(!LOCAL||isInstalled())return "";
+  return `<div class="card"><div class="row" style="justify-content:space-between"><div style="min-width:0"><h2>Install the app</h2><p class="small muted">Put the Builder Claude icon on your home screen. Opens full screen and works offline.</p></div>
+    <button class="primary" id="w-install">Install app</button></div></div>`;
+}
+async function installApp(){
+  if(INSTALL_PROMPT){const p=INSTALL_PROMPT;INSTALL_PROMPT=null;p.prompt();const c=await p.userChoice.catch(()=>null);if(c&&c.outcome!=="accepted")toast("Install cancelled");render();return}
+  const steps=isIOS()
+    ?"<ol><li>Open this page in <b>Safari</b>.</li><li>Tap the <b>Share</b> button (square with an arrow).</li><li>Tap <b>Add to Home Screen</b>, then <b>Add</b>.</li></ol>"
+    :"<ol><li>Open this page in <b>Chrome</b>.</li><li>Tap <b>⋮</b> (top right).</li><li>Tap <b>Install app</b> or <b>Add to Home screen</b>.</li></ol><p>On a PC, click the install icon at the right end of the address bar.</p>";
+  confirmSheet("Install Builder Claude",steps,"Got it");
 }
 function viewPost(){
   const due=nextPostDate();const d=S.draftPost;
@@ -392,6 +411,7 @@ function seg(id,cb){const el=$(id);if(!el)return;el.querySelectorAll("button").f
 async function withBusy(btn,label,fn){const old=btn.innerHTML;btn.disabled=true;btn.innerHTML=`<span class="spin"></span> ${label}`;S.busy=true;try{await fn()}finally{S.busy=false;btn.disabled=false;btn.innerHTML=old;render()}}
 const bind={
   week(){goButtons();
+    const ins=$("#w-install");if(ins)ins.onclick=installApp;
     $("#s-save").onclick=async()=>{
       const n={company:$("#s-company").value.trim(),location:$("#s-loc").value.trim(),roles:$("#s-roles").value.trim()||DEFAULT_SETTINGS.roles,applyHow:$("#s-apply").value.trim()||DEFAULT_SETTINGS.applyHow,postDay:Number($("#s-day").value),postTime:$("#s-time").value||"10:00"};
       try{await saveDoc("settings",n);toast("Settings saved")}catch(e){toast("Couldn't save: "+(e.message||e.code))}};
