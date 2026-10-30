@@ -25,13 +25,13 @@ const LETTERS = [
   [[0.355, T], [0.38, BOT], [0.41, T + 0.035], [0.44, BOT], [0.465, T]],
   [...arc(0.5175, T + 0.027, 0.0325, 0.027, 160, -40), [0.485, BOT], [0.55, BOT]],
   [...arc(0.605, T + H / 2, 0.04, H / 2, 40, 360), [0.605, T + H / 2]],
-];
+].map(pts => pts.map(([x, y]) => [0.5 + (x - 0.5) * 1.5, 0.62 + (y - T) * 1.5]));
 // Colour at a point in the unit square; withText=false for tiny icons where letters would blur.
 function colour(u, v, withText) {
-  if (withText && u > 0.32 && u < 0.68 && v > 0.72 && v < 0.88 && onStroke(u, v, LETTERS, 0.015)) return WHITE;
-  const cy = withText ? 0.42 : 0.5, r = withText ? 0.245 : 0.34;
+  if (withText && u > 0.25 && u < 0.75 && v > 0.59 && v < 0.8 && onStroke(u, v, LETTERS, 0.022)) return WHITE;
+  const cy = withText ? 0.37 : 0.5, r = withText ? 0.18 : 0.34;
   if (Math.hypot(u - 0.5, v - cy) <= r) {
-    const k = withText ? 1 : 1.35;
+    const k = r / 0.245;
     return onStroke(0.5 + (u - 0.5) / k, 0.44 + (v - cy) / k, ARROW, 0.034) ? WHITE : PINK;
   }
   return BG;
