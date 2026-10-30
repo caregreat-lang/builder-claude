@@ -6,6 +6,11 @@
 App link (open it on your phone or computer, signed in to claude.ai):
 https://claude.ai/artifact/NtZxEK2tsqgzed5Cf5fuRD
 
+## Language / 语言
+Tap **中文** at the top right to switch all buttons and menus to Chinese. Tap **EN** to switch back. Each phone or PC remembers its own choice, and phones set to Chinese start in Chinese.
+
+点击右上角的 **中文** 即可把所有按钮和菜单切换成中文，点 **EN** 切换回英文。
+
 ## Install it on your phone (with its own icon)
 1. On your phone, open **https://caregreat-lang.github.io/builder-claude/**
 2. **iPhone:** in Safari, tap Share, then **Add to Home Screen**, then Add.

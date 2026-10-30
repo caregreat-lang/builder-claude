@@ -29,7 +29,9 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .logo{font-family:var(--f-display);font-weight:800;font-size:20px;letter-spacing:-.02em}
 .logo b{color:var(--accent)}
 .tag{font-size:12px;color:var(--muted)}
-.sync{margin-left:auto;font-size:11px;font-family:var(--f-mono);color:var(--muted);white-space:nowrap}
+.top-right{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.lang{min-height:30px;padding:3px 12px;font-size:13px}
+.sync{font-size:11px;font-family:var(--f-mono);color:var(--muted);white-space:nowrap}
 .wrap{padding-block:16px 110px;display:flex;flex-direction:column;gap:16px}
 h1,h2,h3{font-family:var(--f-display);letter-spacing:-.02em;text-wrap:balance;margin:0}
 h1{font-size:26px;font-weight:800;line-height:1.15}
@@ -89,17 +91,17 @@ button:disabled{opacity:.5;cursor:default}
 </style>
 
 <header class="top"><div class="top-in">
-  <div><div class="logo">Builder <b>Claude</b></div><div class="tag">Weekly posts that bring young talent to your DMs</div></div>
-  <div class="sync" id="sync">connecting…</div>
+  <div><div class="logo">Builder <b>Claude</b></div><div class="tag" data-i18n="Weekly posts that bring young talent to your DMs">Weekly posts that bring young talent to your DMs</div></div>
+  <div class="top-right"><button class="lang" id="lang-btn" type="button">中文</button><div class="sync" id="sync">connecting…</div></div>
 </div></header>
 
 <main class="wrap" id="view"></main>
 
 <nav class="tabs" aria-label="Sections"><div class="tabs-in" role="tablist">
-  <button class="tab" role="tab" data-tab="week" id="tab-week"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>This week</button>
-  <button class="tab" role="tab" data-tab="post" id="tab-post"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Create post</button>
-  <button class="tab" role="tab" data-tab="dm" id="tab-dm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Reply DMs</button>
-  <button class="tab" role="tab" data-tab="cand" id="tab-cand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0M17 11h5M19.5 8.5v5"/></svg>Candidates</button>
+  <button class="tab" role="tab" data-tab="week" id="tab-week"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span data-i18n="This week">This week</span></button>
+  <button class="tab" role="tab" data-tab="post" id="tab-post"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg><span data-i18n="Create post">Create post</span></button>
+  <button class="tab" role="tab" data-tab="dm" id="tab-dm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span data-i18n="Reply DMs">Reply DMs</span></button>
+  <button class="tab" role="tab" data-tab="cand" id="tab-cand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0M17 11h5M19.5 8.5v5"/></svg><span data-i18n="Candidates">Candidates</span></button>
 </div></nav>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -121,12 +123,95 @@ const DEFAULT_SETTINGS={company:"",roles:"Graduate Consultant, Business Analyst 
 const S={settings:{...DEFAULT_SETTINGS},candidates:[],posts:[],tab:"week",draftPost:null,dmResult:null,busy:false,synced:false};
 let DB=null,BASE=null,SAMPLE=null,DOWNLOADS=null,LOCAL=false;
 const LOCAL_KEY="builder-claude-data";
+/* ---------- interface language (English / 中文) ---------- */
+// Keys are the English text; {name} marks a value filled in at run time.
+const ZH={
+  "Weekly posts that bring young talent to your DMs":"每周发帖，吸引年轻人才私信你",
+  "This week":"本周","Create post":"写帖子","Reply DMs":"回复私信","Candidates":"应聘者",
+  "connecting…":"连接中…","saved on this device":"已保存在此设备","browser storage blocked · not saving":"浏览器存储被阻止 · 无法保存",
+  "not signed in · not saving":"未登录 · 无法保存","saved to your account":"已保存到你的账户","sync error: {c}":"同步出错：{c}",
+  "Couldn't save in this browser. Check that site data isn't blocked":"无法在此浏览器保存，请检查网站数据是否被阻止",
+  "Sunday":"星期日","Monday":"星期一","Tuesday":"星期二","Wednesday":"星期三","Thursday":"星期四","Friday":"星期五","Saturday":"星期六",
+  "RedNote":"小红书",
+  "This week's post":"本周帖子","Posted for {d}":"{d} 的帖子已发布","Approved and ready for {d}":"已批准，准备于 {d} 发布","Open post":"打开帖子",
+  "Reminder · 1 day to go":"提醒 · 还剩 1 天","Reminder · {n} days to go":"提醒 · 还剩 {n} 天",
+  "Your hiring post is due {d}":"招聘帖子将于 {d} 发布",
+  "Create it now in English, Malay and Chinese so it's approved before posting day.":"现在就写好英文、马来文和中文版本，在发帖日前完成批准。",
+  "Create this week's post":"写本周帖子","Next post":"下一篇帖子",
+  "You'll get a reminder here from {d} (3 days before).":"从 {d}（提前 3 天）开始，这里会提醒你。","Start early":"提前开始",
+  "Install the app":"安装应用","Put the Builder Claude icon on your home screen. Opens full screen and works offline.":"把 Builder Claude 图标放到主屏幕。全屏打开，离线也能用。",
+  "Install app":"安装应用","Builder Claude installed":"Builder Claude 已安装","Install cancelled":"已取消安装","Install Builder Claude":"安装 Builder Claude","Got it":"知道了",
+  "Candidates waiting":"待处理应聘者","{n} with details missing":"{n} 位资料不完整","All details complete":"资料全部完整","View candidates":"查看应聘者",
+  "Posts created":"已写帖子","{n} posted so far":"已发布 {n} 篇","Post history":"帖子记录",
+  "Phone reminder":"手机提醒",
+  "Add a weekly calendar event on {day}, 3 days before each post. Your phone's calendar will notify you even when this app is closed.":"每周{day}添加一个日历提醒（每次发帖前 3 天）。即使应用关闭，手机日历也会通知你。",
+  "Add to Google Calendar":"添加到 Google 日历",
+  "Settings":"设置","Company name":"公司名称","e.g. Your firm's name":"例如：你的公司名称","Location":"地点","Roles you're hiring":"招聘职位",
+  "How to apply (used in posts)":"申请方式（用于帖子）","Weekly posting day":"每周发帖日","Posting time":"发帖时间","Save settings":"保存设置",
+  "Saved to your account, synced to your phone.":"已保存到你的账户，并同步到手机。","Saved in this browser on this device.":"已保存在此设备的浏览器中。",
+  "Sign in to claude.ai to save.":"登录 claude.ai 才能保存。","Settings saved":"设置已保存","Couldn't save: {e}":"无法保存：{e}",
+  "For {d}. Claude writes English, Malay and Chinese; you edit and approve.":"发帖日：{d}。Claude 会写英文、马来文和中文版本，由你修改并批准。",
+  "Theme":"主题","Platform":"平台","Write a new version":"重写一版","Write post":"写帖子","Writing…":"写作中…",
+  "A day in the life of a junior consultant":"初级顾问的一天","Myth vs fact: what consulting is really like":"误区与事实：咨询工作的真实样子",
+  "Intern spotlight: what our interns actually did":"实习生聚焦：我们的实习生做了什么","Career growth: from fresh grad to consultant":"职业成长：从应届生到咨询顾问",
+  "Behind the scenes: team culture and fun":"幕后花絮：团队文化与乐趣","Quick challenge / case puzzle for followers":"小挑战 / 案例题互动",
+  "Draft":"草稿","Template":"模板","Written by Claude":"由 Claude 撰写","draft":"草稿","approved":"已批准","posted":"已发布",
+  "Title":"标题","Hashtags":"标签","Visual idea:":"配图建议：","Save changes":"保存修改","Approve post":"批准帖子",
+  "Copy English":"复制英文","Copy Malay":"复制马来文","Copy Chinese":"复制中文","Mark as posted":"标记为已发布",
+  "History":"记录","Your approved posts appear here, one per week.":"已批准的帖子会显示在这里，每周一篇。","Open":"打开",
+  "English caption copied":"英文文案已复制","Malay caption copied":"马来文文案已复制","Chinese caption copied":"中文文案已复制",
+  "Select the text and copy it manually":"请手动选择文字并复制","English, Malay and Chinese captions are all needed":"英文、马来文和中文文案都需要填写",
+  "Approve this post?":"批准这篇帖子？",
+  "It will be saved as this week's post for <b>{d}</b> on {p}. Nothing is published; you still post it yourself.":"它会保存为 {p} 上 <b>{d}</b> 的本周帖子。不会自动发布，仍需你自己发帖。",
+  "Approve":"批准","Post approved":"帖子已批准","Changes saved":"修改已保存","Mark as posted?":"标记为已发布？",
+  "Only do this after you've published it on {p}.":"请在 {p} 上发布后再标记。","Marked as posted":"已标记为已发布",
+  "Too many requests just now. Wait a minute and try again.":"刚才请求太多，请稍等一分钟再试。",
+  "AI writing is switched off for this page, so a ready-made template was used.":"此页面的 AI 写作已关闭，已改用现成模板。",
+  "AI writing didn't respond, so a ready-made template was used.":"AI 写作没有回应，已改用现成模板。",
+  "Reply to candidate DMs":"回复应聘者私信",
+  "Paste a DM from RedNote or Instagram. Claude pulls out the details and drafts a reply in English, Malay and Chinese. Nothing is sent until you approve.":"粘贴来自小红书或 Instagram 的私信。Claude 会提取资料，并用英文、马来文和中文草拟回复。你批准前不会发送任何内容。",
+  "Their username":"对方用户名","Their message":"对方消息","Paste the DM here":"把私信粘贴在这里","Read DM and draft reply":"读取私信并草拟回复",
+  "Try an example":"试试示例","Reading…":"读取中…","Details found":"找到的资料","Example, not real data":"示例，非真实资料",
+  "Basic reader":"基础读取","Read by Claude":"由 Claude 读取","English":"英文","Malay":"马来文","Chinese":"中文","Mixed":"混合",
+  "Name":"姓名","Education":"教育背景","Experience":"工作经验","Not stated. Reply asks for it":"未提供，回复中会询问",
+  "Check these. You can edit them in Candidates after saving.":"请核对。保存后可在「应聘者」中修改。",
+  "Reply in":"回复语言","Reply draft":"回复草稿","Approve, copy and save candidate":"批准、复制并保存应聘者",
+  "Paste the candidate's message first":"请先粘贴应聘者的消息","The reply is empty":"回复内容为空","Approve this reply?":"批准这条回复？",
+  "The reply will be copied so you can paste it to <b>{h}</b> on {p}.":"回复会被复制，方便你在{p}上粘贴给 <b>{h}</b>。",
+  "The reply will be copied so you can paste it to <b>{h}</b> on {p}, and the candidate will be saved to your list.":"回复会被复制，方便你在{p}上粘贴给 <b>{h}</b>，并把应聘者保存到你的名单。",
+  "the candidate":"应聘者","Approve and copy":"批准并复制","Couldn't save candidate: {e}":"无法保存应聘者：{e}",
+  "Example reply copied (not saved)":"示例回复已复制（未保存）","Reply copied, candidate saved. Paste it in the chat":"回复已复制，应聘者已保存。请粘贴到聊天中",
+  "Candidate saved. Copy the reply manually":"应聘者已保存。请手动复制回复",
+  "Name missing":"缺少姓名","Not provided":"未提供","Ask for: {m}":"需询问：{m}","name":"姓名","education":"教育背景","experience":"工作经验",
+  "Edit":"编辑","Delete":"删除","new":"新","replied":"已回复","shortlisted":"入围","not a fit":"不合适",
+  "{n} from your DMs":"来自私信的 {n} 位","Download PDF":"下载 PDF","Include":"包括","Everyone":"所有人","Shortlisted only":"仅入围",
+  "All except \"not a fit\"":"除「不合适」外全部","Status updated":"状态已更新","Delete this candidate?":"删除这位应聘者？",
+  "<b>{n}</b> and their saved DM will be removed for good.":"<b>{n}</b> 及其保存的私信将被永久删除。","This candidate":"这位应聘者","Candidate deleted":"应聘者已删除",
+  "Edit candidate":"编辑应聘者","Education background":"教育背景","Working experience":"工作经验","Original DM":"原始私信",
+  "Cancel":"取消","Save":"保存","Candidate updated":"应聘者已更新",
+  "No candidates match that filter":"没有符合筛选条件的应聘者","PDF tool didn't load. Check your connection and reload":"PDF 工具未加载，请检查网络后重新加载",
+  "Couldn't make the PDF. Try again":"无法生成 PDF，请重试","PDF saved to your Downloads folder":"PDF 已保存到下载文件夹",
+  "Downloads aren't available in this view. Open the app on claude.ai":"此视图无法下载，请在 claude.ai 打开应用","PDF saved":"PDF 已保存",
+  "Download cancelled":"已取消下载","Couldn't save the PDF ({c})":"无法保存 PDF（{c}）"
+};
+const prefersZh=()=>/^zh/i.test(navigator.language||"");
+let LANG=prefersZh()?"zh":"en";
+try{const l=localStorage.getItem("bc-lang");if(l==="en"||l==="zh")LANG=l}catch(e){}
+function t(key,vars){
+  let s=LANG==="zh"&&ZH[key]!==undefined?ZH[key]:key;
+  if(vars)for(const k in vars)s=s.split("{"+k+"}").join(String(vars[k]));
+  return s;
+}
+const L=o=>LANG==="zh"&&o.zh?o.zh:o.en; // for longer passages with links or lists
+const PLAT=p=>p==="instagram"?"Instagram":t("RedNote");
+function setLang(l){LANG=l;try{localStorage.setItem("bc-lang",l)}catch(e){}render()}
+
 
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 const ymd=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
-const fmtDate=d=>d.toLocaleDateString("en-MY",{weekday:"short",day:"numeric",month:"short"});
+const fmtDate=d=>d.toLocaleDateString(LANG==="zh"?"zh-CN":"en-MY",{weekday:"short",day:"numeric",month:"short"});
 function toast(msg){const t=document.createElement("div");t.className="toast";t.textContent=msg;document.body.append(t);setTimeout(()=>t.remove(),2600)}
 
 /* ---------- storage: db when signed in, memory otherwise ---------- */
@@ -137,9 +222,9 @@ async function initStore(){
   SAMPLE=sample;DOWNLOADS=downloads;
   if(!db||!user){setSync("not signed in · not saving");render();return}
   DB=db;BASE="data/users/"+(await user.id());
-  DB.doc(BASE+"/settings").onSnapshot(s=>{const d=s.data();if(d)S.settings={...DEFAULT_SETTINGS,...d};S.synced=true;setSync("saved to your account");render()},e=>setSync("sync error: "+e.code));
-  DB.collection(BASE+"/hr/candidates").onSnapshot(q=>{S.candidates=q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));render()},e=>setSync("sync error: "+e.code));
-  DB.collection(BASE+"/hr/posts").onSnapshot(q=>{S.posts=q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));render()},e=>setSync("sync error: "+e.code));
+  DB.doc(BASE+"/settings").onSnapshot(s=>{const d=s.data();if(d)S.settings={...DEFAULT_SETTINGS,...d};S.synced=true;setSync("saved to your account");render()},e=>setSync("sync error: {c}",{c:e.code}));
+  DB.collection(BASE+"/hr/candidates").onSnapshot(q=>{S.candidates=q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));render()},e=>setSync("sync error: {c}",{c:e.code}));
+  DB.collection(BASE+"/hr/posts").onSnapshot(q=>{S.posts=q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));render()},e=>setSync("sync error: {c}",{c:e.code}));
   render();
 }
 // Running on your own PC (outside claude.ai): keep data in this browser's storage.
@@ -153,9 +238,10 @@ function initLocal(){
 function persistLocal(){
   if(!LOCAL)return;
   try{localStorage.setItem(LOCAL_KEY,JSON.stringify({settings:S.settings,candidates:S.candidates,posts:S.posts}))}
-  catch(e){toast("Couldn't save in this browser. Check that site data isn't blocked")}
+  catch(e){toast(t("Couldn't save in this browser. Check that site data isn't blocked"))}
 }
-function setSync(t){$("#sync").textContent=t}
+let SYNC=null;
+function setSync(k,v){SYNC=[k,v];$("#sync").textContent=t(k,v)}
 async function saveDoc(kind,obj){
   if(kind==="settings"){S.settings=obj;if(DB)await DB.doc(BASE+"/settings").set(obj);persistLocal();render();return}
   const list=S[kind];const i=list.findIndex(x=>x.id===obj.id);
@@ -193,7 +279,7 @@ function confirmSheet(title,bodyHtml,okLabel,danger){
   return new Promise(res=>{
     const bg=document.createElement("div");bg.className="sheet-bg";
     bg.innerHTML=`<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="cf-t"><h2 id="cf-t">${esc(title)}</h2><div class="small">${bodyHtml}</div>
-      <div class="row" style="justify-content:flex-end"><button id="cf-no" class="ghost">Cancel</button><button id="cf-ok" class="${danger?"danger":"primary"}">${esc(okLabel)}</button></div></div>`;
+      <div class="row" style="justify-content:flex-end"><button id="cf-no" class="ghost">${t("Cancel")}</button><button id="cf-ok" class="${danger?"danger":"primary"}">${esc(okLabel)}</button></div></div>`;
     document.body.append(bg);
     const done=v=>{bg.remove();res(v)};
     bg.querySelector("#cf-no").onclick=()=>done(false);
@@ -278,13 +364,17 @@ function templateReadDm(text){
   r.reply_ms=`Hai${r.name?" "+r.name.split(" ")[0]:""}! Terima kasih kerana menghubungi kami 🙌\n`+(miss.length?`Boleh kongsikan ${miss.map(m=>missMs[m]).join(", ")} dan CV anda?`:"Boleh hantar CV anda?")+` Team kami akan hubungi anda tidak lama lagi.\n(Maklumat anda hanya digunakan untuk tujuan pengambilan pekerja.)`;
   return r;
 }
-function aiErr(e){const c=e&&e.code;return c==="rate_limited"?"Too many requests just now. Wait a minute and try again.":c==="not_granted"?"AI writing is switched off for this page, so a ready-made template was used.":"AI writing didn't respond, so a ready-made template was used."}
+function aiErr(e){const c=e&&e.code;return t(c==="rate_limited"?"Too many requests just now. Wait a minute and try again.":c==="not_granted"?"AI writing is switched off for this page, so a ready-made template was used.":"AI writing didn't respond, so a ready-made template was used.")}
 
 /* ---------- views ---------- */
 function render(){
-  document.querySelectorAll(".tab").forEach(t=>{t.setAttribute("aria-selected",t.dataset.tab===S.tab);
-    const old=t.querySelector(".dot");if(old)old.remove();
-    if(t.dataset.tab==="cand"){const n=S.candidates.filter(c=>c.status==="new").length;if(n){const d=document.createElement("span");d.className="dot";d.textContent=n;t.append(d)}}});
+  document.documentElement.lang=LANG==="zh"?"zh-Hans":"en";
+  document.querySelectorAll("[data-i18n]").forEach(el=>{el.textContent=t(el.dataset.i18n)});
+  const lb=$("#lang-btn");lb.textContent=LANG==="zh"?"EN":"中文";lb.setAttribute("aria-label",LANG==="zh"?"Switch to English":"切换到中文");
+  if(SYNC)$("#sync").textContent=t(SYNC[0],SYNC[1]);
+  document.querySelectorAll(".tab").forEach(tb=>{tb.setAttribute("aria-selected",tb.dataset.tab===S.tab);
+    const old=tb.querySelector(".dot");if(old)old.remove();
+    if(tb.dataset.tab==="cand"){const n=S.candidates.filter(c=>c.status==="new").length;if(n){const d=document.createElement("span");d.className="dot";d.textContent=n;tb.append(d)}}});
   const v=$("#view");
   const active=document.activeElement&&document.activeElement.id;
   if(S.busy)return; // don't replace inputs mid-request
@@ -302,114 +392,117 @@ function viewWeek(){
   const newC=S.candidates.filter(c=>c.status==="new").length;
   const missing=S.candidates.filter(c=>!c.name||!c.education||!c.experience).length;
   let banner;
-  if(ready)banner=`<div class="banner calm"><div class="eyebrow">This week's post</div><div class="big">${p.status==="posted"?"Posted":"Approved and ready"} for ${fmtDate(due)}</div><p class="small">"${esc(p.title)}"</p><div class="row"><button data-go="post">Open post</button></div></div>`;
-  else if(inWindow)banner=`<div class="banner"><div class="eyebrow">Reminder · ${daysLeft} day${daysLeft===1?"":"s"} to go</div><div class="big">Your hiring post is due ${fmtDate(due)}</div><p class="small">Create it now in English, Malay and Chinese so it's approved before posting day.</p><div class="row"><button data-go="post">Create this week's post</button></div></div>`;
-  else banner=`<div class="banner calm"><div class="eyebrow">Next post</div><div class="big">${fmtDate(due)}, ${esc(S.settings.postTime)}</div><p class="small">You'll get a reminder here from ${fmtDate(remind)} (3 days before).</p><div class="row"><button data-go="post">Start early</button></div></div>`;
+  if(ready)banner=`<div class="banner calm"><div class="eyebrow">${t("This week's post")}</div><div class="big">${t(p.status==="posted"?"Posted for {d}":"Approved and ready for {d}",{d:fmtDate(due)})}</div><p class="small">"${esc(p.title)}"</p><div class="row"><button data-go="post">${t("Open post")}</button></div></div>`;
+  else if(inWindow)banner=`<div class="banner"><div class="eyebrow">${t(daysLeft===1?"Reminder · 1 day to go":"Reminder · {n} days to go",{n:daysLeft})}</div><div class="big">${t("Your hiring post is due {d}",{d:fmtDate(due)})}</div><p class="small">${t("Create it now in English, Malay and Chinese so it's approved before posting day.")}</p><div class="row"><button data-go="post">${t("Create this week's post")}</button></div></div>`;
+  else banner=`<div class="banner calm"><div class="eyebrow">${t("Next post")}</div><div class="big">${fmtDate(due)}, ${esc(S.settings.postTime)}</div><p class="small">${t("You'll get a reminder here from {d} (3 days before).",{d:fmtDate(remind)})}</p><div class="row"><button data-go="post">${t("Start early")}</button></div></div>`;
   return `${banner}
   ${installCard()}
   <div class="grid2">
-    <div class="card"><div class="eyebrow muted">Candidates waiting</div><h1>${newC}</h1><p class="small muted">${missing?missing+" with details missing":"All details complete"}</p><button data-go="cand">View candidates</button></div>
-    <div class="card"><div class="eyebrow muted">Posts created</div><h1>${S.posts.length}</h1><p class="small muted">${S.posts.filter(x=>x.status==="posted").length} posted so far</p><button data-go="post">Post history</button></div>
+    <div class="card"><div class="eyebrow muted">${t("Candidates waiting")}</div><h1>${newC}</h1><p class="small muted">${missing?t("{n} with details missing",{n:missing}):t("All details complete")}</p><button data-go="cand">${t("View candidates")}</button></div>
+    <div class="card"><div class="eyebrow muted">${t("Posts created")}</div><h1>${S.posts.length}</h1><p class="small muted">${t("{n} posted so far",{n:S.posts.filter(x=>x.status==="posted").length})}</p><button data-go="post">${t("Post history")}</button></div>
   </div>
   <div class="card">
-    <h2>Phone reminder</h2>
-    <p class="small muted">Add a weekly calendar event on ${DAYS[remind.getDay()]}, 3 days before each post. Your phone's calendar will notify you even when this app is closed.</p>
-    <div class="row"><a href="${esc(calendarLink())}" target="_blank" rel="noopener"><button tabindex="-1">Add to Google Calendar</button></a></div>
+    <h2>${t("Phone reminder")}</h2>
+    <p class="small muted">${t("Add a weekly calendar event on {day}, 3 days before each post. Your phone's calendar will notify you even when this app is closed.",{day:t(DAYS[remind.getDay()])})}</p>
+    <div class="row"><a href="${esc(calendarLink())}" target="_blank" rel="noopener"><button tabindex="-1">${t("Add to Google Calendar")}</button></a></div>
   </div>
   <div class="card">
-    <h2>Settings</h2>
+    <h2>${t("Settings")}</h2>
     <div class="grid2">
-      <label for="s-company">Company name<input id="s-company" value="${esc(S.settings.company)}" placeholder="e.g. Your firm's name"></label>
-      <label for="s-loc">Location<input id="s-loc" value="${esc(S.settings.location)}"></label>
+      <label for="s-company">${t("Company name")}<input id="s-company" value="${esc(S.settings.company)}" placeholder="${esc(t("e.g. Your firm's name"))}"></label>
+      <label for="s-loc">${t("Location")}<input id="s-loc" value="${esc(S.settings.location)}"></label>
     </div>
-    <label for="s-roles">Roles you're hiring<input id="s-roles" value="${esc(S.settings.roles)}"></label>
-    <label for="s-apply">How to apply (used in posts)<input id="s-apply" value="${esc(S.settings.applyHow)}"></label>
+    <label for="s-roles">${t("Roles you're hiring")}<input id="s-roles" value="${esc(S.settings.roles)}"></label>
+    <label for="s-apply">${t("How to apply (used in posts)")}<input id="s-apply" value="${esc(S.settings.applyHow)}"></label>
     <div class="grid2">
-      <label for="s-day">Weekly posting day<select id="s-day">${DAYS.map((d,i)=>`<option value="${i}" ${Number(S.settings.postDay)===i?"selected":""}>${d}</option>`).join("")}</select></label>
-      <label for="s-time">Posting time<input id="s-time" type="time" value="${esc(S.settings.postTime)}"></label>
+      <label for="s-day">${t("Weekly posting day")}<select id="s-day">${DAYS.map((d,i)=>`<option value="${i}" ${Number(S.settings.postDay)===i?"selected":""}>${t(d)}</option>`).join("")}</select></label>
+      <label for="s-time">${t("Posting time")}<input id="s-time" type="time" value="${esc(S.settings.postTime)}"></label>
     </div>
-    <div class="row"><button class="primary" id="s-save">Save settings</button><span class="small muted">${DB?"Saved to your account, synced to your phone.":LOCAL?"Saved in this browser on this device.":"Sign in to claude.ai to save."}</span></div>
+    <div class="row"><button class="primary" id="s-save">${t("Save settings")}</button><span class="small muted">${t(DB?"Saved to your account, synced to your phone.":LOCAL?"Saved in this browser on this device.":"Sign in to claude.ai to save.")}</span></div>
   </div>`;
 }
 /* ---------- install as a phone/PC app (only on the GitHub / PC version) ---------- */
 let INSTALL_PROMPT=null;
 addEventListener("beforeinstallprompt",e=>{e.preventDefault();INSTALL_PROMPT=e;render()});
-addEventListener("appinstalled",()=>{INSTALL_PROMPT=null;toast("Builder Claude installed");render()});
+addEventListener("appinstalled",()=>{INSTALL_PROMPT=null;toast(t("Builder Claude installed"));render()});
 const isInstalled=()=>matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
 const isIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
 function installCard(){
   if(!LOCAL||isInstalled())return "";
-  return `<div class="card"><div class="row" style="justify-content:space-between"><div style="min-width:0"><h2>Install the app</h2><p class="small muted">Put the Builder Claude icon on your home screen. Opens full screen and works offline.</p></div>
-    <button class="primary" id="w-install">Install app</button></div></div>`;
+  return `<div class="card"><div class="row" style="justify-content:space-between"><div style="min-width:0"><h2>${t("Install the app")}</h2><p class="small muted">${t("Put the Builder Claude icon on your home screen. Opens full screen and works offline.")}</p></div>
+    <button class="primary" id="w-install">${t("Install app")}</button></div></div>`;
 }
 async function installApp(){
-  if(INSTALL_PROMPT){const p=INSTALL_PROMPT;INSTALL_PROMPT=null;p.prompt();const c=await p.userChoice.catch(()=>null);if(c&&c.outcome!=="accepted")toast("Install cancelled");render();return}
+  if(INSTALL_PROMPT){const p=INSTALL_PROMPT;INSTALL_PROMPT=null;p.prompt();const c=await p.userChoice.catch(()=>null);if(c&&c.outcome!=="accepted")toast(t("Install cancelled"));render();return}
   const steps=isIOS()
-    ?"<ol><li>Open this page in <b>Safari</b>.</li><li>Tap the <b>Share</b> button (square with an arrow).</li><li>Tap <b>Add to Home Screen</b>, then <b>Add</b>.</li></ol>"
-    :"<ol><li>Open this page in <b>Chrome</b>.</li><li>Tap <b>⋮</b> (top right).</li><li>Tap <b>Install app</b> or <b>Add to Home screen</b>.</li></ol><p>On a PC, click the install icon at the right end of the address bar.</p>";
-  confirmSheet("Install Builder Claude",steps,"Got it");
+    ?L({en:"<ol><li>Open this page in <b>Safari</b>.</li><li>Tap the <b>Share</b> button (square with an arrow).</li><li>Tap <b>Add to Home Screen</b>, then <b>Add</b>.</li></ol>",
+        zh:"<ol><li>用 <b>Safari</b> 打开此页面。</li><li>点击<b>分享</b>按钮（带箭头的方框）。</li><li>点击<b>添加到主屏幕</b>，然后点<b>添加</b>。</li></ol>"})
+    :L({en:"<ol><li>Open this page in <b>Chrome</b>.</li><li>Tap <b>⋮</b> (top right).</li><li>Tap <b>Install app</b> or <b>Add to Home screen</b>.</li></ol><p>On a PC, click the install icon at the right end of the address bar.</p>",
+        zh:"<ol><li>用 <b>Chrome</b> 打开此页面。</li><li>点击右上角的 <b>⋮</b>。</li><li>点击<b>安装应用</b>或<b>添加到主屏幕</b>。</li></ol><p>在电脑上，点击地址栏右侧的安装图标。</p>"});
+  confirmSheet(t("Install Builder Claude"),steps,t("Got it"));
 }
 function viewPost(){
   const due=nextPostDate();const d=S.draftPost;
-  const hist=S.posts.map(p=>`<div class="card cand"><div class="cand-top"><h3>${esc(p.title)}</h3><span class="chip ${p.status==="posted"?"good":p.status==="approved"?"hot":""}">${esc(p.status)}</span></div><p class="mono muted">${esc(p.postDate)} · ${p.platform==="rednote"?"RedNote":"Instagram"}</p><div class="row"><button data-open="${esc(p.id)}">Open</button></div></div>`).join("");
-  return `<div><h1>Create this week's post</h1><p class="muted small">For ${fmtDate(due)}. Claude writes English, Malay and Chinese; you edit and approve.</p></div>
+  const hist=S.posts.map(p=>`<div class="card cand"><div class="cand-top"><h3>${esc(p.title)}</h3><span class="chip ${p.status==="posted"?"good":p.status==="approved"?"hot":""}">${esc(t(p.status))}</span></div><p class="mono muted">${esc(p.postDate)} · ${PLAT(p.platform)}</p><div class="row"><button data-open="${esc(p.id)}">${t("Open")}</button></div></div>`).join("");
+  return `<div><h1>${t("Create this week's post")}</h1><p class="muted small">${t("For {d}. Claude writes English, Malay and Chinese; you edit and approve.",{d:fmtDate(due)})}</p></div>
   <div class="card">
-    <label for="p-theme">Theme<select id="p-theme">${THEMES.map(([k,t])=>`<option value="${k}">${esc(t)}</option>`).join("")}</select></label>
-    <div class="row"><span class="small" style="font-weight:600">Platform</span><div class="seg" id="p-plat">
-      <button data-v="rednote" aria-pressed="${(d?.platform||"rednote")==="rednote"}">RedNote</button><button data-v="instagram" aria-pressed="${d?.platform==="instagram"}">Instagram</button></div></div>
-    <button class="primary" id="p-gen">${d?"Write a new version":"Write post"}</button>
+    <label for="p-theme">${t("Theme")}<select id="p-theme">${THEMES.map(([k,th])=>`<option value="${k}">${esc(t(th))}</option>`).join("")}</select></label>
+    <div class="row"><span class="small" style="font-weight:600">${t("Platform")}</span><div class="seg" id="p-plat">
+      <button data-v="rednote" aria-pressed="${(d?.platform||"rednote")==="rednote"}">${t("RedNote")}</button><button data-v="instagram" aria-pressed="${d?.platform==="instagram"}">Instagram</button></div></div>
+    <button class="primary" id="p-gen">${t(d?"Write a new version":"Write post")}</button>
   </div>
   ${d?`<div class="card" id="p-out">
-    <div class="row"><span class="eyebrow muted">Draft</span>${d.fallback?`<span class="chip warn">Template</span>`:`<span class="chip good">Written by Claude</span>`}<span class="chip">${d.status||"draft"}</span></div>
-    <label for="p-title">Title<input id="p-title" value="${esc(d.title)}"></label>
+    <div class="row"><span class="eyebrow muted">${t("Draft")}</span>${d.fallback?`<span class="chip warn">${t("Template")}</span>`:`<span class="chip good">${t("Written by Claude")}</span>`}<span class="chip">${t(d.status||"draft")}</span></div>
+    <label for="p-title">${t("Title")}<input id="p-title" value="${esc(d.title)}"></label>
     <label for="p-en">English<textarea id="p-en" rows="8">${esc(d.en)}</textarea></label>
     <label for="p-ms">Bahasa Melayu<textarea id="p-ms" rows="8">${esc(d.ms)}</textarea></label>
     <label for="p-zh">中文 Chinese<textarea id="p-zh" rows="8">${esc(d.zh||"")}</textarea></label>
-    <label for="p-tags">Hashtags<input id="p-tags" value="${esc((d.hashtags||[]).join(" "))}"></label>
-    ${d.visual?`<p class="small"><b>Visual idea:</b> ${esc(d.visual)}</p>`:""}
+    <label for="p-tags">${t("Hashtags")}<input id="p-tags" value="${esc((d.hashtags||[]).join(" "))}"></label>
+    ${d.visual?`<p class="small"><b>${t("Visual idea:")}</b> ${esc(d.visual)}</p>`:""}
     <div class="row">
-      <button class="primary" id="p-approve">${d.status==="approved"||d.status==="posted"?"Save changes":"Approve post"}</button>
-      <button id="p-copy-en">Copy English</button><button id="p-copy-ms">Copy Malay</button><button id="p-copy-zh">Copy Chinese</button>
-      ${d.status==="approved"?`<button id="p-posted">Mark as posted</button>`:""}
+      <button class="primary" id="p-approve">${t(d.status==="approved"||d.status==="posted"?"Save changes":"Approve post")}</button>
+      <button id="p-copy-en">${t("Copy English")}</button><button id="p-copy-ms">${t("Copy Malay")}</button><button id="p-copy-zh">${t("Copy Chinese")}</button>
+      ${d.status==="approved"?`<button id="p-posted">${t("Mark as posted")}</button>`:""}
     </div>
-    <p class="small muted">Builder Claude never posts for you. Copy the caption, open <a href="https://www.xiaohongshu.com" target="_blank" rel="noopener">RedNote</a> or <a href="https://www.instagram.com" target="_blank" rel="noopener">Instagram</a>, paste and publish.</p>
+    <p class="small muted">${L({en:'Builder Claude never posts for you. Copy the caption, open <a href="https://www.xiaohongshu.com" target="_blank" rel="noopener">RedNote</a> or <a href="https://www.instagram.com" target="_blank" rel="noopener">Instagram</a>, paste and publish.',
+      zh:'Builder Claude 不会替你发帖。复制文案，打开<a href="https://www.xiaohongshu.com" target="_blank" rel="noopener">小红书</a>或 <a href="https://www.instagram.com" target="_blank" rel="noopener">Instagram</a>，粘贴并发布。'})}</p>
   </div>`:""}
-  <h2>History</h2>
-  ${hist?`<div class="list">${hist}</div>`:`<div class="empty">Your approved posts appear here, one per week.</div>`}`;
+  <h2>${t("History")}</h2>
+  ${hist?`<div class="list">${hist}</div>`:`<div class="empty">${t("Your approved posts appear here, one per week.")}</div>`}`;
 }
 function viewDm(){
   const r=S.dmResult;
-  const f=(k,l)=>`<dt>${l}</dt><dd>${r[k]?esc(r[k]):`<span class="missing">Not stated. Reply asks for it</span>`}</dd>`;
-  return `<div><h1>Reply to candidate DMs</h1><p class="muted small">Paste a DM from RedNote or Instagram. Claude pulls out the details and drafts a reply in English, Malay and Chinese. Nothing is sent until you approve.</p></div>
+  const f=(k,l)=>`<dt>${t(l)}</dt><dd>${r[k]?esc(r[k]):`<span class="missing">${t("Not stated. Reply asks for it")}</span>`}</dd>`;
+  return `<div><h1>${t("Reply to candidate DMs")}</h1><p class="muted small">${t("Paste a DM from RedNote or Instagram. Claude pulls out the details and drafts a reply in English, Malay and Chinese. Nothing is sent until you approve.")}</p></div>
   <div class="card">
-    <div class="row"><div class="seg" id="d-plat"><button data-v="rednote" aria-pressed="${(S.dmPlat||"rednote")==="rednote"}">RedNote</button><button data-v="instagram" aria-pressed="${S.dmPlat==="instagram"}">Instagram</button></div></div>
-    <label for="d-handle">Their username<input id="d-handle" placeholder="@username" value="${esc(S.dmHandle||"")}"></label>
-    <label for="d-text">Their message<textarea id="d-text" placeholder="Paste the DM here">${esc(S.dmText||"")}</textarea></label>
-    <div class="row"><button class="primary" id="d-read">Read DM and draft reply</button><button class="ghost" id="d-example">Try an example</button></div>
+    <div class="row"><div class="seg" id="d-plat"><button data-v="rednote" aria-pressed="${(S.dmPlat||"rednote")==="rednote"}">${t("RedNote")}</button><button data-v="instagram" aria-pressed="${S.dmPlat==="instagram"}">Instagram</button></div></div>
+    <label for="d-handle">${t("Their username")}<input id="d-handle" placeholder="@username" value="${esc(S.dmHandle||"")}"></label>
+    <label for="d-text">${t("Their message")}<textarea id="d-text" placeholder="${esc(t("Paste the DM here"))}">${esc(S.dmText||"")}</textarea></label>
+    <div class="row"><button class="primary" id="d-read">${t("Read DM and draft reply")}</button><button class="ghost" id="d-example">${t("Try an example")}</button></div>
   </div>
   ${r?`<div class="card">
-    <div class="row"><span class="eyebrow muted">Details found</span>${r.example?`<span class="example">Example, not real data</span>`:""}${r.fallback?`<span class="chip warn">Basic reader</span>`:`<span class="chip good">Read by Claude</span>`}<span class="chip">${{ms:"Malay",zh:"Chinese",mixed:"Mixed"}[r.language]||"English"}</span></div>
+    <div class="row"><span class="eyebrow muted">${t("Details found")}</span>${r.example?`<span class="example">${t("Example, not real data")}</span>`:""}${r.fallback?`<span class="chip warn">${t("Basic reader")}</span>`:`<span class="chip good">${t("Read by Claude")}</span>`}<span class="chip">${t({ms:"Malay",zh:"Chinese",mixed:"Mixed"}[r.language]||"English")}</span></div>
     <dl class="kv">${f("name","Name")}${f("education","Education")}${f("experience","Experience")}</dl>
-    <p class="small muted">Check these. You can edit them in Candidates after saving.</p>
-    <div class="row"><span class="small" style="font-weight:600">Reply in</span><div class="seg" id="d-lang"><button data-v="en" aria-pressed="${!["ms","zh"].includes(S.replyLang)}">English</button><button data-v="ms" aria-pressed="${S.replyLang==="ms"}">Malay</button><button data-v="zh" aria-pressed="${S.replyLang==="zh"}">中文</button></div></div>
-    <label for="d-reply">Reply draft<textarea id="d-reply" rows="6">${esc(S.replyLang==="ms"?r.reply_ms:S.replyLang==="zh"?r.reply_zh:r.reply_en)}</textarea></label>
-    <div class="row"><button class="primary" id="d-approve">Approve, copy and save candidate</button></div>
+    <p class="small muted">${t("Check these. You can edit them in Candidates after saving.")}</p>
+    <div class="row"><span class="small" style="font-weight:600">${t("Reply in")}</span><div class="seg" id="d-lang"><button data-v="en" aria-pressed="${!["ms","zh"].includes(S.replyLang)}">${t("English")}</button><button data-v="ms" aria-pressed="${S.replyLang==="ms"}">${t("Malay")}</button><button data-v="zh" aria-pressed="${S.replyLang==="zh"}">中文</button></div></div>
+    <label for="d-reply">${t("Reply draft")}<textarea id="d-reply" rows="6">${esc(S.replyLang==="ms"?r.reply_ms:S.replyLang==="zh"?r.reply_zh:r.reply_en)}</textarea></label>
+    <div class="row"><button class="primary" id="d-approve">${t("Approve, copy and save candidate")}</button></div>
   </div>`:""}`;
 }
 function viewCand(){
   const rows=S.candidates.map(c=>{
     const miss=[!c.name&&"name",!c.education&&"education",!c.experience&&"experience"].filter(Boolean);
     return `<div class="card cand">
-      <div class="cand-top"><div><h3>${c.name?esc(c.name):`<span class="missing">Name missing</span>`}</h3><p class="mono muted">${esc(c.handle||"")} · ${c.platform==="instagram"?"Instagram":"RedNote"} · ${esc(c.date||"")}</p></div>
-      <span class="chip ${c.status==="shortlisted"?"good":c.status==="new"?"hot":""}">${esc(c.status)}</span></div>
-      <dl class="kv"><dt>Education</dt><dd>${c.education?esc(c.education):`<span class="missing">Not provided</span>`}</dd><dt>Experience</dt><dd>${c.experience?esc(c.experience):`<span class="missing">Not provided</span>`}</dd></dl>
-      ${miss.length?`<span class="chip warn">Ask for: ${miss.join(", ")}</span>`:""}
-      <div class="row"><button data-edit="${esc(c.id)}">Edit</button><select data-status="${esc(c.id)}" aria-label="Status for ${esc(c.name||c.handle||"candidate")}">${["new","replied","shortlisted","not a fit"].map(s=>`<option ${c.status===s?"selected":""}>${s}</option>`).join("")}</select><button class="ghost danger" data-del="${esc(c.id)}">Delete</button></div>
+      <div class="cand-top"><div><h3>${c.name?esc(c.name):`<span class="missing">${t("Name missing")}</span>`}</h3><p class="mono muted">${esc(c.handle||"")} · ${PLAT(c.platform)} · ${esc(c.date||"")}</p></div>
+      <span class="chip ${c.status==="shortlisted"?"good":c.status==="new"?"hot":""}">${esc(t(c.status))}</span></div>
+      <dl class="kv"><dt>${t("Education")}</dt><dd>${c.education?esc(c.education):`<span class="missing">${t("Not provided")}</span>`}</dd><dt>${t("Experience")}</dt><dd>${c.experience?esc(c.experience):`<span class="missing">${t("Not provided")}</span>`}</dd></dl>
+      ${miss.length?`<span class="chip warn">${t("Ask for: {m}",{m:miss.map(m=>t(m)).join(LANG==="zh"?"、":", ")})}</span>`:""}
+      <div class="row"><button data-edit="${esc(c.id)}">${t("Edit")}</button><select data-status="${esc(c.id)}" aria-label="Status for ${esc(c.name||c.handle||"candidate")}">${["new","replied","shortlisted","not a fit"].map(s=>`<option value="${s}" ${c.status===s?"selected":""}>${t(s)}</option>`).join("")}</select><button class="ghost danger" data-del="${esc(c.id)}">${t("Delete")}</button></div>
     </div>`}).join("");
-  return `<div class="row" style="justify-content:space-between"><div><h1>Candidates</h1><p class="muted small">${S.candidates.length} from your DMs</p></div>
-    <button class="primary" id="c-pdf" ${S.candidates.length?"":"disabled"}>Download PDF</button></div>
-  <div class="row"><label for="c-filter" style="flex-direction:row;align-items:center;gap:8px">Include<select id="c-filter" style="width:auto"><option value="all">Everyone</option><option value="shortlisted">Shortlisted only</option><option value="active">All except "not a fit"</option></select></label></div>
-  ${rows?`<div class="list">${rows}</div>`:`<div class="empty">No candidates yet. Go to <b>Reply DMs</b>, paste a message, approve the reply, and the candidate is saved here.</div>`}`;
+  return `<div class="row" style="justify-content:space-between"><div><h1>${t("Candidates")}</h1><p class="muted small">${t("{n} from your DMs",{n:S.candidates.length})}</p></div>
+    <button class="primary" id="c-pdf" ${S.candidates.length?"":"disabled"}>${t("Download PDF")}</button></div>
+  <div class="row"><label for="c-filter" style="flex-direction:row;align-items:center;gap:8px">${t("Include")}<select id="c-filter" style="width:auto"><option value="all">${t("Everyone")}</option><option value="shortlisted">${t("Shortlisted only")}</option><option value="active">${esc(t("All except \"not a fit\""))}</option></select></label></div>
+  ${rows?`<div class="list">${rows}</div>`:`<div class="empty">${L({en:"No candidates yet. Go to <b>Reply DMs</b>, paste a message, approve the reply, and the candidate is saved here.",zh:"还没有应聘者。前往<b>回复私信</b>，粘贴消息并批准回复后，应聘者会保存在这里。"})}</div>`}`;
 }
 
 /* ---------- bindings ---------- */
@@ -421,13 +514,13 @@ const bind={
     const ins=$("#w-install");if(ins)ins.onclick=installApp;
     $("#s-save").onclick=async()=>{
       const n={company:$("#s-company").value.trim(),location:$("#s-loc").value.trim(),roles:$("#s-roles").value.trim()||DEFAULT_SETTINGS.roles,applyHow:$("#s-apply").value.trim()||DEFAULT_SETTINGS.applyHow,postDay:Number($("#s-day").value),postTime:$("#s-time").value||"10:00"};
-      try{await saveDoc("settings",n);toast("Settings saved")}catch(e){toast("Couldn't save: "+(e.message||e.code))}};
+      try{await saveDoc("settings",n);toast(t("Settings saved"))}catch(e){toast(t("Couldn't save: {e}",{e:e.message||e.code}))}};
   },
   post(){
     let plat=S.draftPost?.platform||"rednote";seg("#p-plat",v=>{plat=v});
     document.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>{S.draftPost={...S.posts.find(p=>p.id===b.dataset.open)};render();scrollTo(0,0)});
-    $("#p-gen").onclick=e=>withBusy(e.currentTarget,"Writing…",async()=>{
-      const key=$("#p-theme").value;const theme=THEMES.find(t=>t[0]===key)[1];let d;
+    $("#p-gen").onclick=e=>withBusy(e.currentTarget,t("Writing…"),async()=>{
+      const key=$("#p-theme").value;const theme=THEMES.find(th=>th[0]===key)[1];let d;
       if(SAMPLE){try{d=await aiPost(theme,plat)}catch(err){toast(aiErr(err));d=templatePost(key,theme)}}else d=templatePost(key,theme);
       S.draftPost={id:S.draftPost&&S.draftPost.status==="draft"?S.draftPost.id:uid(),...d,platform:plat,postDate:ymd(nextPostDate()),status:"draft",createdAt:Date.now()};
     });
@@ -435,18 +528,17 @@ const bind={
     const read=()=>({...S.draftPost,title:$("#p-title").value.trim(),en:$("#p-en").value,ms:$("#p-ms").value,zh:$("#p-zh").value,hashtags:$("#p-tags").value.split(/\s+/).filter(Boolean),platform:plat});
     ["#p-title","#p-en","#p-ms","#p-zh","#p-tags"].forEach(id=>$(id).oninput=()=>{S.draftPost=read()});
     const tags=()=>"\n\n"+read().hashtags.join(" ");
-    $("#p-copy-en").onclick=async()=>toast(await copyText(read().en+tags())?"English caption copied":"Select the text and copy it manually");
-    $("#p-copy-ms").onclick=async()=>toast(await copyText(read().ms+tags())?"Malay caption copied":"Select the text and copy it manually");
-    $("#p-copy-zh").onclick=async()=>toast(await copyText(read().zh+tags())?"Chinese caption copied":"Select the text and copy it manually");
+    const copyBtn=(id,field,done)=>{$(id).onclick=async()=>toast(t(await copyText(read()[field]+tags())?done:"Select the text and copy it manually"))};
+    copyBtn("#p-copy-en","en","English caption copied");copyBtn("#p-copy-ms","ms","Malay caption copied");copyBtn("#p-copy-zh","zh","Chinese caption copied");
     $("#p-approve").onclick=async()=>{
-      const p=read();if(!p.en.trim()||!p.ms.trim()||!p.zh.trim()){toast("English, Malay and Chinese captions are all needed");return}
+      const p=read();if(!p.en.trim()||!p.ms.trim()||!p.zh.trim()){toast(t("English, Malay and Chinese captions are all needed"));return}
       const first=p.status==="draft";
-      if(first&&!await confirmSheet("Approve this post?",`It will be saved as this week's post for <b>${esc(fmtDate(new Date(p.postDate+"T00:00")))}</b> on ${p.platform==="rednote"?"RedNote":"Instagram"}. Nothing is published; you still post it yourself.`,"Approve"))return;
+      if(first&&!await confirmSheet(t("Approve this post?"),t("It will be saved as this week's post for <b>{d}</b> on {p}. Nothing is published; you still post it yourself.",{d:esc(fmtDate(new Date(p.postDate+"T00:00"))),p:PLAT(p.platform)}),t("Approve")))return;
       if(first)p.status="approved";S.draftPost=p;
-      try{await saveDoc("posts",p);toast(first?"Post approved":"Changes saved")}catch(e){toast("Couldn't save: "+(e.message||e.code))}};
+      try{await saveDoc("posts",p);toast(t(first?"Post approved":"Changes saved"))}catch(e){toast(t("Couldn't save: {e}",{e:e.message||e.code}))}};
     const posted=$("#p-posted");if(posted)posted.onclick=async()=>{
-      if(!await confirmSheet("Mark as posted?","Only do this after you've published it on "+(plat==="rednote"?"RedNote":"Instagram")+".","Mark as posted"))return;
-      const p={...read(),status:"posted",postedAt:Date.now()};S.draftPost=p;await saveDoc("posts",p);toast("Marked as posted")};
+      if(!await confirmSheet(t("Mark as posted?"),t("Only do this after you've published it on {p}.",{p:PLAT(plat)}),t("Mark as posted")))return;
+      const p={...read(),status:"posted",postedAt:Date.now()};S.draftPost=p;await saveDoc("posts",p);toast(t("Marked as posted"))};
   },
   dm(){
     seg("#d-plat",v=>{S.dmPlat=v});seg("#d-lang",v=>{S.replyLang=v;render()});
@@ -454,47 +546,48 @@ const bind={
     $("#d-example").onclick=()=>{S.dmHandle="@example_user";S.dmText="Hi! Saya baru habis Ijazah Sarjana Muda Perakaunan dari UiTM Shah Alam. Nak tanya ada lagi ke jawatan intern untuk tahun depan? Saya pernah buat part-time kat kedai kopi.";S.dmResult=null;S.isExample=true;render()};
     $("#d-read").onclick=e=>{
       const text=($("#d-text").value||"").trim();
-      if(text.length<5){toast("Paste the candidate's message first");return}
+      if(text.length<5){toast(t("Paste the candidate's message first"));return}
       const ex=S.isExample&&text.startsWith("Hi! Saya baru habis");
-      withBusy(e.currentTarget,"Reading…",async()=>{
+      withBusy(e.currentTarget,t("Reading…"),async()=>{
         let r;if(SAMPLE){try{r=await aiReadDm(text,S.dmPlat||"rednote",S.dmHandle)}catch(err){toast(aiErr(err));r=templateReadDm(text)}}else r=templateReadDm(text);
         r.example=ex;S.dmResult=r;S.replyLang=["ms","zh"].includes(r.language)?r.language:"en";
       });
     };
     const ap=$("#d-approve");if(ap)ap.onclick=async()=>{
-      const r=S.dmResult;const reply=$("#d-reply").value.trim();if(!reply){toast("The reply is empty");return}
+      const r=S.dmResult;const reply=$("#d-reply").value.trim();if(!reply){toast(t("The reply is empty"));return}
       if(S.replyLang==="ms")r.reply_ms=reply;else if(S.replyLang==="zh")r.reply_zh=reply;else r.reply_en=reply;
       const plat=S.dmPlat||"rednote";
-      if(!await confirmSheet("Approve this reply?",`The reply will be copied so you can paste it to <b>${esc(S.dmHandle||"the candidate")}</b> on ${plat==="rednote"?"RedNote":"Instagram"}${r.example?"":", and the candidate will be saved to your list"}.<div class="draft" style="margin-top:10px">${esc(reply)}</div>`,"Approve and copy"))return;
+      const body=t(r.example?"The reply will be copied so you can paste it to <b>{h}</b> on {p}.":"The reply will be copied so you can paste it to <b>{h}</b> on {p}, and the candidate will be saved to your list.",{h:esc(S.dmHandle||t("the candidate")),p:PLAT(plat)});
+      if(!await confirmSheet(t("Approve this reply?"),`${body}<div class="draft" style="margin-top:10px">${esc(reply)}</div>`,t("Approve and copy")))return;
       const ok=await copyText(reply);
       if(!r.example){
         const c={id:uid(),name:r.name,education:r.education,experience:r.experience,handle:(S.dmHandle||"").trim(),platform:plat,language:r.language,dm:S.dmText,reply,status:"replied",date:ymd(new Date()),createdAt:Date.now()};
-        try{await saveDoc("candidates",c)}catch(e){toast("Couldn't save candidate: "+(e.message||e.code));return}
+        try{await saveDoc("candidates",c)}catch(e){toast(t("Couldn't save candidate: {e}",{e:e.message||e.code}));return}
       }
       S.dmResult=null;S.dmText="";S.dmHandle="";S.isExample=false;render();
-      toast(ok?(r.example?"Example reply copied (not saved)":"Reply copied, candidate saved. Paste it in the chat"):"Candidate saved. Copy the reply manually");
+      toast(t(ok?(r.example?"Example reply copied (not saved)":"Reply copied, candidate saved. Paste it in the chat"):"Candidate saved. Copy the reply manually"));
     };
   },
   cand(){
-    document.querySelectorAll("[data-status]").forEach(s=>s.onchange=async()=>{const c=S.candidates.find(x=>x.id===s.dataset.status);await saveDoc("candidates",{...c,status:s.value});toast("Status updated")});
+    document.querySelectorAll("[data-status]").forEach(s=>s.onchange=async()=>{const c=S.candidates.find(x=>x.id===s.dataset.status);await saveDoc("candidates",{...c,status:s.value});toast(t("Status updated"))});
     document.querySelectorAll("[data-del]").forEach(b=>b.onclick=async()=>{const c=S.candidates.find(x=>x.id===b.dataset.del);
-      if(await confirmSheet("Delete this candidate?",`<b>${esc(c.name||c.handle||"This candidate")}</b> and their saved DM will be removed for good.`,"Delete",true)){await removeDoc("candidates",c.id);toast("Candidate deleted")}});
+      if(await confirmSheet(t("Delete this candidate?"),t("<b>{n}</b> and their saved DM will be removed for good.",{n:esc(c.name||c.handle||t("This candidate"))}),t("Delete"),true)){await removeDoc("candidates",c.id);toast(t("Candidate deleted"))}});
     document.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>editCandidate(S.candidates.find(x=>x.id===b.dataset.edit)));
     const pdf=$("#c-pdf");if(pdf)pdf.onclick=()=>downloadPdf($("#c-filter").value);
   }
 };
 function editCandidate(c){
   const bg=document.createElement("div");bg.className="sheet-bg";
-  bg.innerHTML=`<div class="sheet" role="dialog" aria-modal="true"><h2>Edit candidate</h2>
-    <label for="e-name">Name<input id="e-name" value="${esc(c.name||"")}"></label>
-    <label for="e-edu">Education background<textarea id="e-edu" rows="2">${esc(c.education||"")}</textarea></label>
-    <label for="e-exp">Working experience<textarea id="e-exp" rows="3">${esc(c.experience||"")}</textarea></label>
-    ${c.dm?`<details><summary class="small">Original DM</summary><div class="draft small">${esc(c.dm)}</div></details>`:""}
-    <div class="row" style="justify-content:flex-end"><button class="ghost" id="e-no">Cancel</button><button class="primary" id="e-ok">Save</button></div></div>`;
+  bg.innerHTML=`<div class="sheet" role="dialog" aria-modal="true"><h2>${t("Edit candidate")}</h2>
+    <label for="e-name">${t("Name")}<input id="e-name" value="${esc(c.name||"")}"></label>
+    <label for="e-edu">${t("Education background")}<textarea id="e-edu" rows="2">${esc(c.education||"")}</textarea></label>
+    <label for="e-exp">${t("Working experience")}<textarea id="e-exp" rows="3">${esc(c.experience||"")}</textarea></label>
+    ${c.dm?`<details><summary class="small">${t("Original DM")}</summary><div class="draft small">${esc(c.dm)}</div></details>`:""}
+    <div class="row" style="justify-content:flex-end"><button class="ghost" id="e-no">${t("Cancel")}</button><button class="primary" id="e-ok">${t("Save")}</button></div></div>`;
   document.body.append(bg);
   bg.querySelector("#e-no").onclick=()=>bg.remove();
   bg.querySelector("#e-ok").onclick=async()=>{const v=id=>bg.querySelector(id).value.trim()||null;
-    await saveDoc("candidates",{...c,name:v("#e-name"),education:v("#e-edu"),experience:v("#e-exp")});bg.remove();toast("Candidate updated")};
+    await saveDoc("candidates",{...c,name:v("#e-name"),education:v("#e-edu"),experience:v("#e-exp")});bg.remove();toast(t("Candidate updated"))};
 }
 const HAS_CJK=/[㐀-鿿豈-﫿]/;
 async function cjkPdfDoc(list,sub,NA){
@@ -530,15 +623,15 @@ async function cjkPdfDoc(list,sub,NA){
 }
 async function downloadPdf(filter){
   const list=S.candidates.filter(c=>filter==="shortlisted"?c.status==="shortlisted":filter==="active"?c.status!=="not a fit":true);
-  if(!list.length){toast("No candidates match that filter");return}
-  if(!window.jspdf){toast("PDF tool didn't load. Check your connection and reload");return}
+  if(!list.length){toast(t("No candidates match that filter"));return}
+  if(!window.jspdf){toast(t("PDF tool didn't load. Check your connection and reload"));return}
   const sub=`${S.settings.company||"Builder Claude"}  ·  Generated ${new Date().toLocaleDateString("en-MY",{day:"numeric",month:"long",year:"numeric"})}  ·  ${list.length} candidate${list.length>1?"s":""}  ·  Confidential: recruitment use only`;
   const NA="Not provided - ask candidate";
   let doc;
   if(HAS_CJK.test(sub+JSON.stringify(list.map(c=>[c.name,c.education,c.experience,c.handle])))){
     // The PDF's built-in fonts have no Chinese characters, so draw the table on screen and place it as an image.
-    if(!window.html2canvas){toast("PDF tool didn't load. Check your connection and reload");return}
-    try{doc=await cjkPdfDoc(list,sub,NA)}catch(e){toast("Couldn't make the PDF. Try again");return}
+    if(!window.html2canvas){toast(t("PDF tool didn't load. Check your connection and reload"));return}
+    try{doc=await cjkPdfDoc(list,sub,NA)}catch(e){toast(t("Couldn't make the PDF. Try again"));return}
   }else{
   const {jsPDF}=window.jspdf;doc=new jsPDF({orientation:"landscape",unit:"pt",format:"a4"});
   doc.setFont("helvetica","bold");doc.setFontSize(18);doc.text("Candidate List",40,48);
@@ -551,12 +644,13 @@ async function downloadPdf(filter){
     didParseCell:d=>{if(d.section==="body"&&d.cell.raw===NA){d.cell.styles.textColor=[163,90,0];d.cell.styles.fontStyle="italic"}}});
   }
   const name=`candidate-list-${ymd(new Date())}.pdf`;const blob=doc.output("blob");
-  if(LOCAL){doc.save(name);toast("PDF saved to your Downloads folder");return}
-  if(!DOWNLOADS){toast("Downloads aren't available in this view. Open the app on claude.ai");return}
-  try{await DOWNLOADS.save({filename:name,data:blob});toast("PDF saved")}catch(e){toast(e.code==="declined"?"Download cancelled":"Couldn't save the PDF ("+e.code+")")}
+  if(LOCAL){doc.save(name);toast(t("PDF saved to your Downloads folder"));return}
+  if(!DOWNLOADS){toast(t("Downloads aren't available in this view. Open the app on claude.ai"));return}
+  try{await DOWNLOADS.save({filename:name,data:blob});toast(t("PDF saved"))}catch(e){toast(e.code==="declined"?t("Download cancelled"):t("Couldn't save the PDF ({c})",{c:e.code}))}
 }
 document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{S.tab=t.dataset.tab;render();scrollTo(0,0)});
 try{const t=localStorage.getItem("bc-tab");if(t)S.tab=t}catch(e){}
 window.addEventListener("beforeunload",()=>{try{localStorage.setItem("bc-tab",S.tab)}catch(e){}});
+$("#lang-btn").onclick=()=>setLang(LANG==="zh"?"en":"zh");
 render();initStore();
 </script>
