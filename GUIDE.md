@@ -1,7 +1,7 @@
 # Builder Claude: how to use it
 
 **What it fixes:** your hiring posts weren't reaching young, energetic candidates, and replying to every DM took too much time.
-**What it does:** each week it writes a fun hiring post in English and Malay, reminds you 3 days before posting day, drafts replies to candidate DMs, and keeps a candidate list you can download as a PDF.
+**What it does:** each week it writes a fun hiring post in English, Malay and Chinese (中文), reminds you 3 days before posting day, drafts replies to candidate DMs, and keeps a candidate list you can download as a PDF.
 
 App link (open it on your phone or computer, signed in to claude.ai):
 https://claude.ai/artifact/NtZxEK2tsqgzed5Cf5fuRD
@@ -34,18 +34,18 @@ How the PC version differs from the claude.ai link:
 
 ## Every week
 1. **Reminder** (3 days before): the This week screen turns pink and your calendar alerts you.
-2. **Create post**: choose a theme and RedNote or Instagram, then tap **Write post**. Edit the English and Malay captions if you want, then tap **Approve post**.
-3. Tap **Copy English** or **Copy Malay**, open RedNote or Instagram, paste and publish. Then tap **Mark as posted**.
+2. **Create post**: choose a theme and RedNote or Instagram, then tap **Write post**. Edit the English, Malay and Chinese captions if you want, then tap **Approve post**.
+3. Tap **Copy English**, **Copy Malay** or **Copy Chinese**, open RedNote or Instagram, paste and publish. Then tap **Mark as posted**.
 
 ## When candidates DM you
 1. Copy the DM from RedNote or Instagram.
 2. Go to **Reply DMs**, paste the message, add their @username, and tap **Read DM and draft reply**.
 3. Check the details it found. Anything the candidate didn't say is marked **Not stated** and is never guessed. The reply asks the candidate for it.
-4. Switch between English and Malay, edit the reply if needed, then tap **Approve, copy and save candidate**. Paste the reply into the chat.
+4. Switch between English, Malay and 中文, edit the reply if needed, then tap **Approve, copy and save candidate**. Paste the reply into the chat.
 
 ## Candidate PDF
 Go to **Candidates**, choose who to include (everyone, shortlisted, or everyone except "not a fit"), and tap **Download PDF**.
-Columns: Name, Education Background, Working Experience, Source, Status. Missing details print as "Not provided - ask candidate".
+Columns: Name, Education Background, Working Experience, Source, Status. Missing details print as "Not provided - ask candidate". Chinese names and schools print correctly.
 
 ## Safety rules built in
 - Nothing is posted or sent automatically. You approve every post and every reply.
